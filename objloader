@@ -1,0 +1,74 @@
+#pragma once
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <vector>
+
+
+class objloader
+{
+public:
+	objloader(const char* objfilePath);
+	~objloader();
+	std::vector<float>vertices;
+	std::vector<unsigned int>indices;
+};
+
+objloader::objloader(const char* objfilePath)
+{
+	std::stringstream verticesStream, indicesStream;
+	std::stringstream ssv,ssi;
+	std::ifstream ifs(objfilePath);
+	if (!ifs)
+		std::cout << "the file cannot correctly open" << std::endl;
+	std::string str = "";
+	for (std::string line; std::getline(ifs, line);)
+	{
+		std::vector<std::string>strArray;
+		line = line.append(" ");
+		for (int i = 0; i < line.length(); i++) 
+		{
+			char ch = line[i];
+			if (ch != ' ') 
+			{
+				str += ch;
+			}
+			else {
+				strArray.push_back(str); //取出line字符串里以空格划分的字符串，形成strArray字符串序列
+				str = "";
+			}
+		}
+		if (strArray.size() == 4 && strArray[0] == "v")
+		{
+			for (int i = 1; i <= 3; i++)
+			{
+				ssv.clear();//清空ssv的状态
+				ssv << strArray[i];
+				float coord;
+				ssv >> coord;
+				vertices.push_back(coord);
+				ssv.str("");//清空ssv的内容
+			}
+		}
+		if (strArray.size() == 4 && strArray[0] == "f")
+		{
+			for (int i = 1; i <= 3; i++)
+			{
+				ssi.clear();//清空ssi的状态
+				ssi << strArray[i];
+				unsigned int coord;
+				ssi >> coord;
+				coord=coord-1;//因为obj文件里索引是从1开始的，所以要减1
+				indices.push_back(coord);
+				ssi.str("");//清空ssi的内容
+			}
+		}
+
+
+	}
+}
+
+objloader::~objloader()
+{
+}
